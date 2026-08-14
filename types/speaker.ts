@@ -162,6 +162,7 @@ export interface Speaker {
   fitReasons: string[];
   riskFlags: string[];
   contact: ContactInfo;
+  linkedin: string; // linkedin.com/in/<handle> (synthetic handle)
   outreach: {
     status: "untouched" | "shortlisted" | "contacted" | "confirmed" | "declined";
     priorityTier: "S" | "A" | "B" | "C";
@@ -172,6 +173,10 @@ export interface Speaker {
   tags: string[];
   addedOn: string;
   lastVerified: string;
+  /** True for the curated roster of verified real public speakers. */
+  isReal?: boolean;
+  /** Where the real person's identity/prior work was verified from. */
+  verifiedSource?: string;
 }
 
 const talkSchema = z.object({
@@ -260,6 +265,7 @@ export const speakerSchema = z.object({
   fitReasons: z.array(z.string()),
   riskFlags: z.array(z.string()),
   contact: z.object({ email: z.string(), phone: z.string().optional() }),
+  linkedin: z.string(),
   outreach: z.object({
     status: z.enum([
       "untouched",
@@ -276,6 +282,8 @@ export const speakerSchema = z.object({
   tags: z.array(z.string()),
   addedOn: z.string(),
   lastVerified: z.string(),
+  isReal: z.boolean().optional(),
+  verifiedSource: z.string().optional(),
 });
 
 export type SpeakerInput = z.infer<typeof speakerSchema>;

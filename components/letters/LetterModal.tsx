@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "@/lib/store";
-import { GENRES, buildLetter, type Genre } from "@/lib/letters";
+import { GENRES, buildLetter, linkedinUrl, type Genre } from "@/lib/letters";
 import { Avatar } from "@/components/ui/Avatar";
 import { inviteLetterPdf, downloadBytes } from "@/lib/pdf";
 import { fx } from "@/lib/audio";
@@ -114,6 +114,15 @@ export default function LetterModal() {
 
           {/* actions */}
           <div className="flex items-center gap-2 border-t border-white/10 bg-black/30 px-4 py-3">
+            <a
+              href={linkedinUrl(speaker)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => fx.play("open")}
+              className="btn btn-ghost text-xs"
+            >
+              in LinkedIn
+            </a>
             <button onClick={copy} className="btn btn-ghost flex-1 text-xs">
               {copied ? "✓ Copied" : "Copy"}
             </button>

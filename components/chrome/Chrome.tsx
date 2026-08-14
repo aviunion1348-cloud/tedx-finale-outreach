@@ -11,6 +11,8 @@ import Cursor from "./Cursor";
 import GrainOverlay from "./GrainOverlay";
 import SettingsPopover from "./SettingsPopover";
 import CommandPalette from "./CommandPalette";
+import ScrollProgress from "@/components/effects/ScrollProgress";
+import PageTransition from "@/components/effects/PageTransition";
 import WarpOverlay from "@/components/effects/WarpOverlay";
 import DossierModal from "@/components/dossier/DossierModal";
 import Compare from "@/components/dossier/Compare";
@@ -32,7 +34,33 @@ export function Chrome({ children }: { children: React.ReactNode }) {
       }
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+
+    // Global subtle hover sound on interactive buttons (delegated, throttled).
+    let lastHover = 0;
+    const onHover = (e: PointerEvent) => {
+      const t = e.target as HTMLElement;
+      if (!t.closest("button, a.btn, .btn")) return;
+      const now = Date.now();
+      if (now - lastHover < 60) return;
+      lastHover = now;
+      fx.play("hover");
+    };
+    window.addEventListener("pointerover", onHover);
+
+    // Section-reveal swipe sound.
+    const onReveal = () => {
+      const now = Date.now();
+      if (now - lastHover < 220) return;
+      lastHover = now;
+      fx.play("swipe");
+    };
+    document.addEventListener("txj:reveal", onReveal);
+
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("pointerover", onHover);
+      document.removeEventListener("txj:reveal", onReveal);
+    };
   }, [hydrate]);
 
   return (
@@ -43,6 +71,8 @@ export function Chrome({ children }: { children: React.ReactNode }) {
       <Nav />
       <main className="relative z-10 min-h-screen">{children}</main>
       <Footer />
+      <ScrollProgress />
+      <PageTransition />
       <SettingsPopover />
       <CommandPalette />
       <WarpOverlay />

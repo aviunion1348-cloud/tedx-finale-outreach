@@ -267,6 +267,7 @@ function buildSpeaker(rnd, idx, band, cityKey, domain, sig, gender) {
       email: maskedEmail(name),
       phone: "••••••••••",
     },
+    linkedin: linkedinHandle(name),
     outreach: {
       status: "untouched",
       priorityTier: overallFit >= 82 ? "S" : overallFit >= 70 ? "A" : overallFit >= 55 ? "B" : "C",
@@ -294,6 +295,14 @@ function maskedEmail(name) {
   const domain = pick(mulberry32(name.length * 31), ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com"]);
   const first = name.toLowerCase().replace(/[^a-z]/g, "")[0] || "a";
   return `${first}•••••@${domain}`;
+}
+
+// Deterministic, plausible LinkedIn handle. NOTE: synthetic — a real handle
+// must be supplied to be a "working" profile link.
+function linkedinHandle(name) {
+  const clean = name.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const suffix = (mulberry32(name.length * 17 + 3)() * 9000 | 0) + 1000;
+  return `${clean}${suffix}`;
 }
 
 // ---- driver ----

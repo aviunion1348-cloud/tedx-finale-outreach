@@ -125,7 +125,7 @@ export default function SearchCore({ autofocus, onNavigate, placeholderOverride 
 
       {/* results */}
       {outcome && outcome.results.length > 0 && (
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3" id="results">
+        <div className="scroll3d mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3" id="results">
           {outcome.results.map((s) => (
             <SearchResultCard key={s.id} speaker={s} />
           ))}

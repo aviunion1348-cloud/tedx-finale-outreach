@@ -105,7 +105,7 @@ export default function ExploreView({ speakers }: { speakers: Speaker[] }) {
 
       {/* grid mode */}
       {viewMode === "grid" && (
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="scroll3d mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {sorted.map((s) => (
             <SearchResultCard key={s.id} speaker={s} />
           ))}

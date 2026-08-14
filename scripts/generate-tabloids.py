@@ -206,10 +206,19 @@ def render(s, size, grain):
     return img
 
 
+def render_plate(s, size, grain, colors):
+    img = render(s, size, grain)
+    if colors:
+        # Quantize to a small palette — flat red/black graphics shrink ~2.5x.
+        img = img.quantize(colors=colors, method=Image.MEDIANCUT)
+    return img
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--size", default="1345x1670")
+    ap.add_argument("--size", default="1200x1490")
     ap.add_argument("--grain", type=int, default=0)
+    ap.add_argument("--colors", type=int, default=64)
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--out", default=os.path.join(ROOT, "public/tabloids"))
     args = ap.parse_args()
@@ -219,7 +228,7 @@ def main():
         speakers = speakers[: args.limit]
     os.makedirs(args.out, exist_ok=True)
     for i, s in enumerate(speakers):
-        img = render(s, (w, h), args.grain)
+        img = render_plate(s, (w, h), args.grain, args.colors)
         img.save(os.path.join(args.out, f"{s['id']}.png"), optimize=True)
         if (i + 1) % 100 == 0:
             print(f"{i+1}/{len(speakers)}")

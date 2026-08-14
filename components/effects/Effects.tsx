@@ -32,6 +32,11 @@ export function Reveal({
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
+  useEffect(() => {
+    if (inView) {
+      document.dispatchEvent(new CustomEvent("txj:reveal"));
+    }
+  }, [inView]);
   return (
     <div
       ref={ref}
@@ -99,7 +104,7 @@ export function StaggerItem({ children, index = 0 }: { children: ReactNode; inde
   );
 }
 
-// Placeholder-compatible effect exports (kept for API compat).
+// Placeholder-compatible effect exports.
 export function TextScramble({ text }: { text: string }) {
   return <span>{text}</span>;
 }
@@ -110,6 +115,95 @@ export function SplitTextReveal({ text }: { text: string }) {
 export function Spotlight({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
-export function Tilt3D({ children }: { children: ReactNode }) {
-  return <>{children}</>;
+
+// Real CSS 3D tilt on pointer move (GPU transform only → holds 60/70fps).
+// Wraps children and applies rotateX/rotateY from cursor position.
+export function Tilt3D({
+  children,
+  max = 10,
+  className = "",
+}: {
+  children: ReactNode;
+  max?: number;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+    let raf = 0;
+    const onMove = (e: PointerEvent) => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const r = el.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        el.style.transform = `perspective(900px) rotateX(${(-py * max).toFixed(2)}deg) rotateY(${(px * max).toFixed(2)}deg) translateZ(0)`;
+      });
+    };
+    const onLeave = () => {
+      cancelAnimationFrame(raf);
+      el.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg)";
+    };
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerleave", onLeave);
+    return () => {
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerleave", onLeave);
+      cancelAnimationFrame(raf);
+    };
+  }, [max]);
+  return (
+    <div
+      ref={ref}
+      className={`tilt3d ${className}`}
+      style={{ transition: "transform .25s cubic-bezier(.22,1,.36,1)", willChange: "transform" }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// Scroll-linked parallax (translates children at a depth relative to scroll).
+export function Parallax({
+  children,
+  speed = 0.15,
+  className = "",
+}: {
+  children: ReactNode;
+  speed?: number;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+    let raf = 0;
+    const update = () => {
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      // depth = how far past center of viewport
+      const depth = (r.top + r.height / 2 - vh / 2) / vh;
+      el.style.transform = `translate3d(0, ${(depth * speed * 100).toFixed(2)}px, 0)`;
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, [speed]);
+  return (
+    <div ref={ref} className={`parallax ${className}`} style={{ willChange: "transform" }}>
+      {children}
+    </div>
+  );
 }

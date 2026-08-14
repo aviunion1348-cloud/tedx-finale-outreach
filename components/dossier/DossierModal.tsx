@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Speaker } from "@/types/speaker";
 import { useStore } from "@/lib/store";
@@ -11,7 +11,7 @@ import { similarSpeakers } from "@/lib/search";
 import { fx } from "@/lib/audio";
 import { dossierPdf, downloadBytes, downloadUrl } from "@/lib/pdf";
 import { domainLabel } from "@/lib/domains";
-import { buildLetter } from "@/lib/letters";
+import { buildLetter, linkedinUrl } from "@/lib/letters";
 
 const SUB_SCORES: { key: keyof Speaker["scores"]; label: string }[] = [
   { key: "relevance", label: "Relevance" },
@@ -52,7 +52,7 @@ export default function DossierModal() {
     downloadBytes(bytes, `${speaker.id}-dossier.pdf`);
   };
 
-  const bodyLocked = useMemo(() => {
+  useEffect(() => {
     if (!speaker) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -60,7 +60,6 @@ export default function DossierModal() {
       document.body.style.overflow = prev;
     };
   }, [speaker]);
-  useEffect(() => bodyLocked, [bodyLocked]);
 
   if (!speaker) return null;
 
@@ -123,7 +122,14 @@ export default function DossierModal() {
                 <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
                   <Avatar id={speaker.id} accent={speaker.accentColor} size={120} className="ring-2 ring-[#eb0028]/50" />
                   <div className="min-w-0">
-                    <div className="label-cap mb-2">{speaker.id} · {speaker.pronouns}</div>
+                    <div className="label-cap mb-2">
+                      {speaker.id} · {speaker.pronouns}
+                      {speaker.isReal && (
+                        <span className="ml-2 inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-emerald-300">
+                          ✓ Verified real speaker
+                        </span>
+                      )}
+                    </div>
                     <h2 className="font-display text-3xl font-bold text-white sm:text-4xl">{speaker.name}</h2>
                     <p className="mt-2 text-white/70">{speaker.headline}</p>
                     <p className="mt-1 text-sm text-white/50">
@@ -138,6 +144,15 @@ export default function DossierModal() {
                     <p className="mt-2 text-xs text-white/40">
                       {speaker.languages.join(" · ")}
                     </p>
+                    <a
+                      href={linkedinUrl(speaker)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => fx.play("open")}
+                      className="mt-2 inline-flex items-center gap-1 rounded-full border border-[#0a66c2]/50 bg-[#0a66c2]/10 px-2.5 py-1 text-[11px] text-[#7fc1ff] transition hover:bg-[#0a66c2]/25"
+                    >
+                      in /in/{speaker.linkedin}
+                    </a>
                   </div>
                 </div>
               </Section>
@@ -346,6 +361,15 @@ export default function DossierModal() {
               >
                 ⟷ Compare
               </button>
+              <a
+                href={linkedinUrl(speaker)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => fx.play("open")}
+                className="btn btn-ghost text-xs"
+              >
+                in LinkedIn
+              </a>
               <button onClick={() => copyDM(speaker)} className="btn btn-ghost text-xs">
                 Copy DM
               </button>

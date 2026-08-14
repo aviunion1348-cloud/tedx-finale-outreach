@@ -486,3 +486,73 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* ============================================================
+   v4.1 · 3D scroll, tilt, page-wipe transition
+   ============================================================ */
+
+/* 3D scroll stage: cards sit in a perspective so tilts feel dimensional */
+.scroll3d {
+  perspective: 1200px;
+}
+.scroll3d > * {
+  transform-style: preserve-3d;
+}
+
+/* tilt3d base (transform driven from JS in Effects.tsx) */
+.tilt3d {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+/* page-wipe transition */
+.page-wipe {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  pointer-events: none;
+  overflow: hidden;
+}
+.page-wipe-panel {
+  position: absolute;
+  left: 50%;
+  top: -10%;
+  bottom: -10%;
+  width: 0;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, #5a0010, #eb0028 45%, #ff3b55 55%, #5a0010);
+  box-shadow: 0 0 80px rgba(235, 0, 40, 0.6);
+  animation: pageWipe 0.6s cubic-bezier(0.77, 0, 0.18, 1) forwards;
+}
+@keyframes pageWipe {
+  0% {
+    width: 0;
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  60% {
+    width: 60vw;
+    opacity: 1;
+  }
+  100% {
+    width: 120vw;
+    opacity: 0.9;
+  }
+}
+
+/* scroll progress bar glow */
+.scroll-progress-glow {
+  box-shadow: 0 0 12px rgba(255, 59, 85, 0.8);
+}
+
+/* reduced-motion: kill the new motion too */
+@media (prefers-reduced-motion: reduce) {
+  .page-wipe-panel,
+  .tilt3d,
+  .parallax {
+    animation: none !important;
+    transform: none !important;
+  }
+}

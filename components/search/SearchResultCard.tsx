@@ -7,6 +7,7 @@ import DomainTag from "@/components/ui/DomainTag";
 import { useStore } from "@/lib/store";
 import { fx } from "@/lib/audio";
 import { openFromEl } from "@/components/dossier/morph";
+import { linkedinUrl } from "@/lib/letters";
 
 interface Props {
   speaker: Speaker;
@@ -26,10 +27,33 @@ export default function SearchResultCard({ speaker: s }: Props) {
     setActiveSpeaker(s);
   };
 
+  const tilt = (e: React.PointerEvent) => {
+    const el = ref.current;
+    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    el.style.transform = `perspective(900px) rotateX(${(-py * 8).toFixed(2)}deg) rotateY(${(px * 8).toFixed(2)}deg) translateZ(0)`;
+  };
+  const tiltReset = () => {
+    if (ref.current) ref.current.style.transform = "";
+  };
+
   return (
-    <div ref={ref} className="tablo-card relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.01] p-4">
+    <div
+      ref={ref}
+      onPointerMove={tilt}
+      onPointerLeave={tiltReset}
+      className="tablo-card relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.01] p-4"
+      style={{ transformStyle: "preserve-3d" }}
+    >
       {/* plate index */}
       <div className="label-cap absolute right-4 top-3 text-white/30">{s.id}</div>
+      {s.isReal && (
+        <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-emerald-300">
+          ✓ Real
+        </span>
+      )}
 
       <div className="flex items-start gap-3">
         <Avatar id={s.id} accent={s.accentColor} size={72} />
@@ -69,6 +93,16 @@ export default function SearchResultCard({ speaker: s }: Props) {
         <button onClick={open} className="btn btn-primary flex-1 !py-2 text-xs">
           Open Dossier
         </button>
+        <a
+          href={linkedinUrl(s)}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => fx.play("open")}
+          className="btn btn-ghost !px-2.5 !py-2 text-xs"
+          title="Open LinkedIn"
+        >
+          in
+        </a>
         <button
           onClick={() => {
             fx.play("tick");

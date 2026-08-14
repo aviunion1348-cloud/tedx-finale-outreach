@@ -14,6 +14,7 @@
     "lint:copy": "node scripts/lint-copy.mjs",
     "audit": "node scripts/audit-size.mjs",
     "gen": "node scripts/generate-dataset.mjs && node scripts/validate-dataset.mjs && node scripts/generate-search-assets.mjs",
+    "import:real": "node scripts/import-real.mjs",
     "test:search": "node scripts/test-search.mjs"
   },
   "dependencies": {

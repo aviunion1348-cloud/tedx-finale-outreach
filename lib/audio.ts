@@ -1,7 +1,7 @@
 // WebAudio engine — pure oscillators + noise buffers, zero audio files.
 // fx.tick / thunk / chime / open / warp. Sound is ON by default (v3).
 
-type FXName = "tick" | "thunk" | "chime" | "open" | "warp";
+type FXName = "tick" | "thunk" | "chime" | "open" | "warp" | "hover" | "swipe" | "flip" | "pop";
 
 class AudioEngine {
   private ctx: AudioContext | null = null;
@@ -98,6 +98,60 @@ class AudioEngine {
         osc2.start(t);
         osc.stop(t + 0.3);
         osc2.stop(t + 0.3);
+        break;
+      }
+      case "hover": {
+        // soft high blip for hovers
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(1200, t);
+        env(g, 0.02, 0.005, 0.05);
+        osc.connect(g).connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.06);
+        break;
+      }
+      case "swipe": {
+        // whoosh for transitions / section reveals
+        const noise = ctx.createBufferSource();
+        noise.buffer = this.noiseBuffer(ctx, 0.4);
+        const nf = ctx.createBiquadFilter();
+        nf.type = "bandpass";
+        nf.frequency.setValueAtTime(300, t);
+        nf.frequency.exponentialRampToValueAtTime(2800, t + 0.22);
+        nf.Q.value = 1.4;
+        const ng = ctx.createGain();
+        env(ng, 0.16, 0.01, 0.3);
+        noise.connect(nf);
+        nf.connect(ng).connect(ctx.destination);
+        noise.start(t);
+        noise.stop(t + 0.4);
+        break;
+      }
+      case "flip": {
+        // quick two-note chirp for card flip
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(660, t);
+        osc.frequency.exponentialRampToValueAtTime(880, t + 0.08);
+        env(g, 0.08, 0.005, 0.09);
+        osc.connect(g).connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.1);
+        break;
+      }
+      case "pop": {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(520, t);
+        osc.frequency.exponentialRampToValueAtTime(260, t + 0.1);
+        env(g, 0.14, 0.005, 0.1);
+        osc.connect(g).connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.12);
         break;
       }
       case "warp": {
