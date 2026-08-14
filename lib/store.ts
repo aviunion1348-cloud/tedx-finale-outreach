@@ -18,6 +18,7 @@ export interface Filters {
   languages: string[];
   tiers: string[];
   domains: string[];
+  branches: string[];
   genders: string[];
 }
 
@@ -28,6 +29,7 @@ const defaultFilters: Filters = {
   languages: [],
   tiers: [],
   domains: [],
+  branches: [],
   genders: [],
 };
 

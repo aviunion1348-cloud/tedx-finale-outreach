@@ -40,7 +40,7 @@ function genSubject(s: Speaker, angle: string): { a: string; b: string } {
   const hook = first(s.name);
   const theme = s.topics[0] || "your craft";
   return {
-    a: `${hook}, a talk our ${s.speakingExperience.totalTalks + 18} strong student audience needs to hear`,
+    a: `${hook}, a talk our student audience at TEDx BIT Jaipur needs to hear`,
     b: `Bringing your work on ${theme} to the TEDx BIT Jaipur stage`,
   };
 }
@@ -65,11 +65,6 @@ export function buildLetter(s: Speaker, genre: Genre = "email"): LetterText {
       ? " You have visited campus before, so you know the energy of our audience."
       : "";
 
-  const drewText = `your ${s.audience.estimatedDrawStudents} strong following`;
-  const costText = s.fee.willWaiveFee
-    ? "we can arrange a waived honorarium"
-    : `honorarium and travel around ₹${s.fee.totalEstCostINR.toLocaleString("en-IN")}`;
-
   const body = [
     `Dear ${s.name},`,
     ``,
@@ -77,7 +72,7 @@ export function buildLetter(s: Speaker, genre: Genre = "email"): LetterText {
     ``,
     `Your work on ${theme} is exactly the kind of idea our students need to hold onto. In particular, ${s.bioShort.toLowerCase()} That is the kind of energy we want on our stage.`,
     ``,
-    `Here is the practical part. ${feasLine}. You typically need ${s.typicalNoticeWeeks} weeks notice, and your best contact window is ${s.bestContactWindow.toLowerCase()}. On budget, ${costText}, which fits our lean ₹5,000 plan, and we know you bring ${drewText}.`,
+    `Here is the practical part. ${feasLine}. If this sounds interesting, we would love to walk you through everything the platform offers, so you can see whether it is a good fit for your calendar and your audience.`,
     ``,
     `We would love to host you. The talk we have in mind is around "${s.proposedTalkTitle.replace(/["“”]/g, "")}" because ${s.talkAngle.toLowerCase()}`,
     ``,
@@ -89,9 +84,9 @@ export function buildLetter(s: Speaker, genre: Genre = "email"): LetterText {
     `P.S. We do not ask speakers to fit a theme. We ask them to bring the thing they would talk about even if no one paid them. For you, that sounds like ${s.proposedTalkTitle.replace(/["“”]/g, "")}.`,
   ].join("\n");
 
-  const dm = `Hi ${hook}! TEDx BIT Jaipur here, we followed your work on ${theme}. We would love to host you around "${s.proposedTalkTitle.replace(/["“”]/g, "")}". ${feasLine}. Keen to chat?`;
-  const whatsapp = `Hi ${hook} 🙌 I am on the TEDx BIT Jaipur team. Your work on ${theme} really stood out, and we would love you on our stage. ${feasLine}. What does your availability look like in the coming weeks?`;
-  const phone = `Hi ${hook}, this is the TEDx BIT Jaipur team calling about ${s.headline}. We would love to invite you to speak on "${s.proposedTalkTitle.replace(/["“”]/g, "")}". ${feasLine}. Could I tell you a little more?`;
+  const dm = `Hi ${hook}! TEDx BIT Jaipur here, we followed your work on ${theme}. We would love to host you around "${s.proposedTalkTitle.replace(/["“”]/g, "")}". ${feasLine}. Could we set up a quick chat to share what we can offer?`;
+  const whatsapp = `Hi ${hook} 🙌 I am on the TEDx BIT Jaipur team. Your work on ${theme} really stood out, and we would love you on our stage. ${feasLine}. If you are open to it, we can share the full picture of what is on offer. What does your availability look like in the coming weeks?`;
+  const phone = `Hi ${hook}, this is the TEDx BIT Jaipur team calling about ${s.headline}. We would love to invite you to speak on "${s.proposedTalkTitle.replace(/["“”]/g, "")}". ${feasLine}. Could I tell you a little more and share what we can offer?`;
 
   return {
     subjectA: deDash(genSubject(s, s.talkAngle).a),

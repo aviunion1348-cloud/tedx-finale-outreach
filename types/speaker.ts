@@ -177,6 +177,10 @@ export interface Speaker {
   isReal?: boolean;
   /** Where the real person's identity/prior work was verified from. */
   verifiedSource?: string;
+  /** Verified LinkedIn follower count, when confirmed from their public profile. 0 = not verified. */
+  verifiedFollowers?: number;
+  /** BIT Jaipur 2026 B.Tech branch: CSE | CSE_AI_ML | ECE | EEE | INTERDISCIPLINARY */
+  branch?: string;
 }
 
 const talkSchema = z.object({

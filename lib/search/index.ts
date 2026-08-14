@@ -12,6 +12,7 @@ import {
   getEmbedding,
   l2Normalise,
   dimsCount,
+  tokenise,
 } from "./lexicon";
 import { rrf, rerank } from "./rrf";
 
@@ -106,7 +107,44 @@ export async function search(query: string, mixer: RankingMixer): Promise<Search
 
   // ---- fuse ----
   const fused = rrf([lexIds, semIds]);
+
+  // ---- concept/domain boost: map query concepts to matching speakers' domains
+  // and topics so the "best match" wins even without a lexical hit (e.g.
+  // "donald trump" → geopolitics-adjacent; "ev" → energy/transport). ----
+  const qWords = tokenise(residual);
+  const boost = new Map<string, number>();
+  for (const sp of speakerList) {
+    let b = 0;
+    const hay = [...sp.topics, ...sp.keywords, sp.primaryDomain, ...sp.secondaryDomains, ...sp.tags]
+      .join(" ")
+      .toLowerCase();
+    for (const w of qWords) {
+      if (hay.includes(w)) b += 1.2;
+    }
+    // domain-synonym coverage via concept dims (dim is a number; compare to a
+    // numeric set of the speaker's relevant dimensions only when available).
+    if (qVec.size > 0) {
+      const strTerms = new Set([sp.primaryDomain, ...sp.secondaryDomains, ...sp.topics, ...sp.keywords]);
+      qVec.forEach((w, dim) => {
+        if (typeof dim === "string" && strTerms.has(dim)) b += 0.9;
+      });
+    }
+    // proximity: prefer closer speakers when relevance is tied
+    if (b > 0) boost.set(sp.id, b - sp.distanceKm / 200);
+  }
+
   let ranked = rerank(fused, byId, mixer);
+  // Re-sort: if there's a strong domain/topic boost, put those first.
+  if (boost.size > 0) {
+    ranked = ranked
+      .map((s) => ({ s, b: boost.get(s.id) || 0 }))
+      .sort((a, b2) => {
+        const d = b2.b - a.b;
+        if (Math.abs(d) > 0.05) return d;
+        return b2.s.scores.overallFit - a.s.scores.overallFit;
+      })
+      .map((x) => x.s);
+  }
 
   // ---- apply parsed filters ----
   if (needFilters) ranked = applyFilters(ranked, parsed);

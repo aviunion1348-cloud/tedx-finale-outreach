@@ -117,7 +117,7 @@ export default function SearchCore({ autofocus, onNavigate, placeholderOverride 
           )}
           {outcome.emptyFallback && (
             <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-amber-200">
-              No exact match — closest ideas:
+              No exact domain match in the current roster — closest by overall fit:
             </span>
           )}
         </div>

@@ -8,18 +8,23 @@ import { Avatar } from "@/components/ui/Avatar";
 import DomainTag from "@/components/ui/DomainTag";
 import { useStore, type ViewMode } from "@/lib/store";
 import { fx } from "@/lib/audio";
+import BranchMap from "./BranchMap";
 
 type SortKey = "fit" | "distance" | "cost" | "followers" | "name";
 
 export default function ExploreView({ speakers }: { speakers: Speaker[] }) {
   const viewMode = useStore((s) => s.viewMode);
   const setViewMode = useStore((s) => s.setViewMode);
+  const branchFilter = useStore((s) => s.filters.branches);
   const [sort, setSort] = useState<SortKey>("fit");
   const [q, setQ] = useState("");
   const parentRef = useRef<HTMLDivElement>(null);
 
   const sorted = useMemo(() => {
-    const arr = [...speakers];
+    let arr = [...speakers];
+    if (branchFilter.length) {
+      arr = arr.filter((s) => branchFilter.includes(s.branch || ""));
+    }
     const f = q.toLowerCase();
     const filtered = f
       ? arr.filter((s) =>
@@ -47,7 +52,16 @@ export default function ExploreView({ speakers }: { speakers: Speaker[] }) {
         break;
     }
     return filtered;
-  }, [speakers, q, sort]);
+  }, [speakers, q, sort, branchFilter]);
+
+  const branchCounts = useMemo(() => {
+    const c: Record<string, number> = {};
+    speakers.forEach((s) => {
+      const b = s.branch || "INTERDISCIPLINARY";
+      c[b] = (c[b] || 0) + 1;
+    });
+    return c;
+  }, [speakers]);
 
   const virtualizer = useVirtualizer({
     count: sorted.length,
@@ -102,6 +116,8 @@ export default function ExploreView({ speakers }: { speakers: Speaker[] }) {
       <div className="mt-4 text-xs text-white/40">
         Showing {sorted.length} of {speakers.length} candidates
       </div>
+
+      <BranchMap counts={branchCounts} />
 
       {/* grid mode */}
       {viewMode === "grid" && (

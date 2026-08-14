@@ -10,18 +10,96 @@ import argparse, json, math, os, random, sys
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-FONT_DIR = os.environ.get("FONT_DIR", "/tmp/fonts-ttf")
+# Fonts live in a project-local folder (cross-platform, no /tmp on Windows).
+FONT_DIR = os.path.join(ROOT, "scripts", "fonts-ttf")
+FONT_ZIPS = {
+    "clash-display": "https://api.fontshare.com/v2/fonts/download/clash-display",
+    "satoshi": "https://api.fontshare.com/v2/fonts/download/satoshi",
+}
+JETBRAINS_URLS = {
+    "JetBrainsMono-Regular.ttf": "https://github.com/JetBrains/JetBrainsMono/raw/master/fonts/ttf/JetBrainsMono-Regular.ttf",
+    "JetBrainsMono-Bold.ttf": "https://github.com/JetBrains/JetBrainsMono/raw/master/fonts/ttf/JetBrainsMono-Bold.ttf",
+}
+FONT_ALIASES = {
+    "ClashDisplay-Bold": ["ClashDisplay-Bold.ttf"],
+    "ClashDisplay-Semibold": ["ClashDisplay-Semibold.ttf"],
+    "Satoshi-Regular": ["Satoshi-Regular.ttf"],
+    "Satoshi-Bold": ["Satoshi-Bold.ttf"],
+    "JetBrainsMono-Regular": ["JetBrainsMono-Regular.ttf"],
+    "JetBrainsMono-Bold": ["JetBrainsMono-Bold.ttf"],
+}
+_ensure_fonts_called = False
+
+
+def _ensure_fonts():
+    """Download the TTF fonts into the project-local folder on first run."""
+    global _ensure_fonts_called
+    if _ensure_fonts_called:
+        return
+    _ensure_fonts_called = True
+    os.makedirs(FONT_DIR, exist_ok=True)
+    # which of the 8 needed files are missing?
+    needed = []
+    for alias, files in FONT_ALIASES.items():
+        if not any(os.path.exists(os.path.join(FONT_DIR, f)) for f in files):
+            needed.append(alias)
+    if not needed:
+        return
+    import io, zipfile, urllib.request
+    print("Downloading fonts (one-time) ...")
+    def _have():
+        return {f for files in FONT_ALIASES.values() for f in files
+                if os.path.exists(os.path.join(FONT_DIR, f))}
+    before = _have()
+    # Fontshare zips (Clash Display, Satoshi)
+    for key, url in FONT_ZIPS.items():
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            data = urllib.request.urlopen(req, timeout=40).read()
+            z = zipfile.ZipFile(io.BytesIO(data))
+            for n in z.namelist():
+                bn = os.path.basename(n)
+                if bn in before or bn.startswith("ClashDisplay-") or bn.startswith("Satoshi-"):
+                    if bn.endswith(".ttf") and not os.path.exists(os.path.join(FONT_DIR, bn)):
+                        with open(os.path.join(FONT_DIR, bn), "wb") as out:
+                            out.write(z.read(n))
+                        print(f"  + {bn}")
+        except Exception as e:
+            print(f"  ! failed {key}: {e}")
+    # JetBrains Mono direct TTFs
+    for f, url in JETBRAINS_URLS.items():
+        dest = os.path.join(FONT_DIR, f)
+        if not os.path.exists(dest):
+            try:
+                urllib.request.urlretrieve(url, dest)
+                print(f"  + {f}")
+            except Exception as e:
+                print(f"  ! failed {f}: {e}")
+    after = _have()
+    if not after:
+        print("  ! Could not auto-download fonts. Please copy the 8 TTF files "
+              "into scripts/fonts-ttf/ (see README).")
+
+
+def font(name, size):
+    _ensure_fonts()
+    candidates = FONT_ALIASES.get(name, [name + ".ttf"])
+    for c in candidates:
+        p = os.path.join(FONT_DIR, c)
+        if os.path.exists(p):
+            return ImageFont.truetype(p, size)
+    raise OSError(
+        f"font '{name}' not found in {FONT_DIR}. "
+        "Run the script again to auto-download, or place the TTF there."
+    )
+
+
 TED = (235, 0, 40)
 TED_HOT = (255, 59, 85)
 WHITE = (243, 243, 245)
 MUTED = (150, 150, 160)
 DIM = (100, 100, 112)
-
 COLORS = [TED, TED_HOT, (255, 122, 0), (229, 57, 53), (194, 24, 91), (123, 31, 162), (92, 107, 192)]
-
-
-def font(name, size):
-    return ImageFont.truetype(os.path.join(FONT_DIR, name + ".ttf"), size)
 
 
 def fnv1a(s):

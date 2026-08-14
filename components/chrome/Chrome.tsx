@@ -47,6 +47,27 @@ export function Chrome({ children }: { children: React.ReactNode }) {
     };
     window.addEventListener("pointerover", onHover);
 
+    // Swoosh on every click + high-tech ripple on the element clicked.
+    let lastClick = 0;
+    const onClick = (e: MouseEvent) => {
+      const t = e.target as HTMLElement;
+      if (!t.closest("button, a.btn, .btn, [data-ripple]")) return;
+      const now = Date.now();
+      if (now - lastClick < 120) return;
+      lastClick = now;
+      fx.play("swipe");
+      // high-tech ripple
+      const el = (t.closest("button, a.btn, [data-ripple]") as HTMLElement) || t;
+      const rect = el.getBoundingClientRect();
+      const ri = document.createElement("span");
+      ri.className = "click-ripple";
+      ri.style.left = `${e.clientX - rect.left}px`;
+      ri.style.top = `${e.clientY - rect.top}px`;
+      el.appendChild(ri);
+      setTimeout(() => ri.remove(), 600);
+    };
+    window.addEventListener("click", onClick);
+
     // Section-reveal swipe sound.
     const onReveal = () => {
       const now = Date.now();
@@ -59,6 +80,7 @@ export function Chrome({ children }: { children: React.ReactNode }) {
     return () => {
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("pointerover", onHover);
+      window.removeEventListener("click", onClick);
       document.removeEventListener("txj:reveal", onReveal);
     };
   }, [hydrate]);

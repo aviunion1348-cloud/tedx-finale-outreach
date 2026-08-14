@@ -249,9 +249,9 @@ export default function DossierModal() {
               <Section index={6}>
                 <ModuleTitle>Reach</ModuleTitle>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  <Stat label="Followers" value={fmt(speaker.audience.followers)} />
+                  <Stat label="Followers" value={speaker.verifiedFollowers ? fmt(speaker.verifiedFollowers) : "Verified on request"} />
                   <Stat label="Media mentions" value={`${speaker.audience.mediaMentions}`} />
-                  <Stat label="Draw (students)" value={fmt(speaker.audience.estimatedDrawStudents)} />
+                  <Stat label="Draw (students)" value={speaker.audience.estimatedDrawStudents ? fmt(speaker.audience.estimatedDrawStudents) : "On request"} />
                   <Stat label="Press-worthiness" value={`${speaker.audience.pressWorthiness}/100`} />
                 </div>
               </Section>
