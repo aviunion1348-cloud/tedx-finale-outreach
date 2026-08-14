@@ -1,0 +1,488 @@
+@import "tailwindcss";
+
+/* ============================================================
+   TEDx BIT Jaipur — Outreach Engine · v4 design tokens
+   Red / black / slashy-liquid + drifting mist. Premium & luxury.
+   ============================================================ */
+
+@theme inline {
+  --color-ink: #07070b;
+  --color-panel: rgba(255, 255, 255, 0.04);
+  --color-panel-2: rgba(255, 255, 255, 0.06);
+  --color-line: rgba(255, 255, 255, 0.09);
+  --color-ted: #eb0028;
+  --color-ted-hot: #ff3b55;
+  --color-ted-soft: #ff6b81;
+  --color-mist: rgba(255, 255, 255, 0.35);
+  --color-cyan: #00e5ff;
+  --color-amber: #ffc247;
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+}
+
+:root {
+  --ink: #07070b;
+  --panel: rgba(255, 255, 255, 0.04);
+  --panel-2: rgba(255, 255, 255, 0.06);
+  --line: rgba(255, 255, 255, 0.09);
+  --ted: #eb0028;
+  --ted-hot: #ff3b55;
+  --ted-soft: #ff6b81;
+  --cyan: #00e5ff;
+  --amber: #ffc247;
+  --radius: 18px;
+  --ease-lux: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+body {
+  background: var(--ink);
+  color: #f3f3f5;
+  font-family: var(--font-body), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.font-display {
+  font-family: var(--font-display), sans-serif;
+}
+.font-mono {
+  font-family: var(--font-mono), monospace;
+}
+
+::selection {
+  background: var(--ted);
+  color: #fff;
+}
+
+/* ---- custom cursor ---- */
+.tx-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  mix-blend-mode: difference;
+}
+.tx-cursor .dot {
+  width: 6px;
+  height: 6px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+.tx-cursor .ring {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--ted-hot);
+  border-radius: 50%;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  transition: width 0.2s var(--ease-lux), height 0.2s var(--ease-lux), opacity 0.2s;
+}
+@media (hover: none), (pointer: coarse) {
+  .tx-cursor {
+    display: none;
+  }
+}
+
+/* ---- scrollbars ---- */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a10;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--ted), #5a000f);
+  border-radius: 6px;
+  border: 2px solid #0a0a10;
+}
+
+/* ---- glass panel ---- */
+.glass {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.9);
+}
+.glass-strong {
+  background: linear-gradient(160deg, rgba(20, 20, 28, 0.92), rgba(8, 8, 12, 0.94));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  box-shadow: 0 40px 90px -40px rgba(0, 0, 0, 1);
+}
+
+/* ---- label caps ---- */
+.label-cap {
+  font-family: var(--font-mono), monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* ---- grain ---- */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---- scanline / LED ---- */
+.scanline::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 2px,
+    rgba(0, 0, 0, 0.06) 3px
+  );
+}
+.led {
+  box-shadow: 0 0 8px var(--ted), 0 0 2px var(--ted-hot);
+}
+
+/* ============================================================
+   MIST — the moving, premium luxury background layer.
+   Drifting blurred puffs of light over the liquid slash field.
+   ============================================================ */
+.mist-field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.mist-puff {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, var(--ted-soft), rgba(255, 107, 129, 0.05) 60%, transparent 72%);
+  filter: blur(40px);
+  opacity: 0;
+  mix-blend-mode: screen;
+  will-change: transform, opacity;
+  animation: mistDrift 18s var(--ease-lux) infinite;
+}
+.mist-puff.soft {
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.05) 60%, transparent 75%);
+  filter: blur(70px);
+}
+@keyframes mistDrift {
+  0% {
+    transform: translate3d(-8%, 6%, 0) scale(0.9);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.6;
+  }
+  55% {
+    opacity: 0.45;
+  }
+  100% {
+    transform: translate3d(8%, -6%, 0) scale(1.25);
+    opacity: 0;
+  }
+}
+
+/* ============================================================
+   LIQUID — watery red diagonal slashes warped by feTurbulence.
+   ============================================================ */
+.liquid-field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.liquid-field svg {
+  position: absolute;
+  width: 160%;
+  height: 160%;
+  top: -30%;
+  left: -30%;
+}
+.slash-line {
+  fill: none;
+  stroke: url(#liquidGrad);
+  stroke-width: 3;
+  filter: url(#liquidDisplace);
+  opacity: 0.5;
+}
+.ink-blob {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--ted-hot), var(--ted) 45%, transparent 70%);
+  filter: blur(70px);
+  opacity: 0.22;
+  animation: blobFloat 26s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes blobFloat {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(6vw, -4vh) scale(1.2);
+  }
+  66% {
+    transform: translate(-5vw, 5vh) scale(0.9);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+.light-streak {
+  position: absolute;
+  height: 1px;
+  width: 60vw;
+  background: linear-gradient(90deg, transparent, var(--ted-soft), transparent);
+  filter: blur(1px);
+  animation: streak 9s linear infinite;
+  opacity: 0.5;
+}
+@keyframes streak {
+  0% {
+    transform: translateX(-40vw);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.7;
+  }
+  85% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateX(140vw);
+    opacity: 0;
+  }
+}
+
+/* ============================================================
+   WARP — Interstellar style transition.
+   ============================================================ */
+.warp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  pointer-events: none;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  animation: warpFade 1.4s var(--ease-lux) forwards;
+}
+.warp-line {
+  position: absolute;
+  bottom: 50%;
+  left: 50%;
+  width: 2px;
+  height: 60vh;
+  transform-origin: 50% 100%;
+  background: linear-gradient(to top, transparent, var(--ted-hot), #fff, var(--ted-hot), transparent);
+  filter: blur(1px);
+  opacity: 0;
+  animation: warpStreak 0.7s var(--ease-lux) forwards;
+}
+.warp-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, #fff 0%, var(--ted) 45%, transparent 80%);
+  opacity: 0;
+  animation: warpFlash 0.35s ease-out forwards;
+}
+.warp-vignette {
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.9) 90%);
+  animation: warpZoom 1.4s var(--ease-lux) forwards;
+}
+@keyframes warpStreak {
+  0% {
+    transform: translate(-50%, 0) scaleY(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -30vh) scaleY(3.2);
+    opacity: 0.7;
+  }
+}
+@keyframes warpFlash {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes warpZoom {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 1;
+  }
+}
+@keyframes warpFade {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ============================================================
+   Reveal / entrance micro-animations
+   ============================================================ */
+.reveal-up {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s var(--ease-lux), transform 0.7s var(--ease-lux);
+}
+.reveal-up.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* tabloid card hover lift */
+.tablo-card {
+  transition: transform 0.5s var(--ease-lux), box-shadow 0.5s var(--ease-lux), border-color 0.5s;
+}
+.tablo-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 40px 90px -30px rgba(235, 0, 40, 0.5);
+}
+
+/* red text glow */
+.ted-glow {
+  text-shadow: 0 0 24px rgba(255, 59, 85, 0.6);
+}
+
+/* keycap */
+.kbd {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  padding: 2px 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.25s var(--ease-lux), box-shadow 0.25s var(--ease-lux), background 0.25s;
+}
+.btn-primary {
+  background: linear-gradient(120deg, var(--ted), var(--ted-hot));
+  color: #fff;
+  box-shadow: 0 12px 30px -10px rgba(235, 0, 40, 0.7);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px -12px rgba(235, 0, 40, 0.85);
+}
+.btn-ghost {
+  border-color: var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: #e8e8ec;
+}
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+/* progress bars */
+.bar {
+  height: 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.bar > i {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--ted), var(--ted-hot));
+  transition: width 0.6s var(--ease-lux);
+}
+
+/* focus */
+:focus-visible {
+  outline: 2px solid var(--ted-hot);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .mist-puff,
+  .ink-blob,
+  .light-streak,
+  .slash-line,
+  .warp-line {
+    animation: none !important;
+  }
+  .reveal-up {
+    opacity: 1;
+    transform: none;
+  }
+  * {
+    scroll-behavior: auto !important;
+  }
+}
